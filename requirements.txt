@@ -1,7 +1,5 @@
-python-3.7.0
 Flask
 gunicorn
 flask_mail
-flask-mail
 wtforms
 flask_wtf
