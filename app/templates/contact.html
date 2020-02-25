@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<head>
+  <title>Contacts</title>
+</head>
+
+<div class="pt-4 pl-4">
+<h1> Submit content below to enter the bounty, also donate at least $1</h1>
+</div>
+
+<br> </br>
+
+<style>
+  form label {
+    font-size: 1.2em;
+    font-weight: bold;
+    display: block;
+    padding: 10px 0;}
+  
+  form input#name,
+  form input#email,
+  form input#subject {
+    width: 400px;
+    background-color: #fafafa;
+    -webkit-border-radius: 3px;
+      -moz-border-radius: 3px;
+            border-radius: 3px;
+    border: 1px solid #cccccc;
+    padding: 5px;
+    font-size: 1.1em;
+  }
+  
+  form textarea#message {
+    width: 500px;
+    height: 100px;
+    background-color: #fafafa;
+    -webkit-border-radius: 3px;
+      -moz-border-radius: 3px;
+            border-radius: 3px;
+    border: 1px solid #cccccc;
+    margin-bottom: 10px;
+    padding: 5px;
+    font-size: 1.1em;
+  }
+  
+  form input#submit {
+    display: block;
+    -webkit-border-radius: 3px; 
+      -moz-border-radius: 3px;
+            border-radius: 3px;
+    border:1px solid #d8d8d8;
+    padding: 10px; 
+    font-weight:bold; 
+    text-align: center; 
+    color: #000000; 
+    background-color: #f4f4f4;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f4f4f4), color-stop(100%, #e5e5e5));
+    background-image: -webkit-linear-gradient(top, #f4f4f4, #e5e5e5);
+    background-image: -moz-linear-gradient(top, #f4f4f4, #e5e5e5);
+    background-image: -ms-linear-gradient(top, #f4f4f4, #e5e5e5);
+    background-image: -o-linear-gradient(top, #f4f4f4, #e5e5e5);
+    background-image: linear-gradient(top, #f4f4f4, #e5e5e5);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#f4f4f4, endColorstr=#e5e5e5);
+  }
+  
+  form input#submit:hover{
+    cursor: pointer;
+    border:1px solid #c1c1c1; 
+    background-color: #dbdbdb;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#dbdbdb), color-stop(100%, #cccccc));
+    background-image: -webkit-linear-gradient(top, #dbdbdb, #cccccc);
+    background-image: -moz-linear-gradient(top, #dbdbdb, #cccccc);
+    background-image: -ms-linear-gradient(top, #dbdbdb, #cccccc);
+    background-image: -o-linear-gradient(top, #dbdbdb, #cccccc);
+    background-image: linear-gradient(top, #dbdbdb, #cccccc);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#dbdbdb, endColorstr=#cccccc);
+  }
+</style>
+<body>
+  <div class="p-3 max-w-xl mx-auto rounded overflow-hidden shadow-lg bg-white">
+  {% if success %}
+    <p>Donate $1 with the same email to enter the bounty.</p>
+ 
+  {% else %}
+ 
+    {% for message in form.name.errors %}
+      <div class="flash">{{ message }}</div>
+    {% endfor %}
+ 
+    {% for message in form.email.errors %}
+      <div class="flash">{{ message }}</div>
+    {% endfor %}
+ 
+    {% for message in form.subject.errors %}
+      <div class="flash">{{ message }}</div>
+    {% endfor %}
+ 
+    {% for message in form.message.errors %}
+      <div class="flash">{{ message }}</div>
+    {% endfor %}
+
+    {% for message in form.file_.errors %}
+      <div class="flash">{{ message }}</div>
+    {% endfor %}
+
+    <div>
+      <form action="{{ url_for('contact') }}" method=post enctype="multipart/form-data">
+      <div>
+        {{ form.hidden_tag() }}
+      </div>
+      <div>
+        {{ form.name.label }}
+        {{ form.name }}
+      </div>
+      <div>
+        {{ form.email.label }}
+        {{ form.email }}
+      </div>
+      <div>
+        {{ form.subject.label }}
+        {{ form.subject }}
+      </div>
+      <div>
+        {{ form.message.label }}
+        {{ form.message }}
+      </div>
+        <div>
+        {{ form.file_ }}
+      </div>
+      <div class="pt-5">
+        {{ form.submit }}
+      </div>
+      </form>
+    </div>
+  {% endif %}
+  </div>
+</body>
+
+<div>
+  <div class="pt-8 flex flex-col h-screen my-auto items-center bgimg bg-cover">
+      <div>
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+        <input type="hidden" name="cmd" value="_donations" />
+        <input type="hidden" name="business" value="2N6TVY4NVDQHN" />
+        <input type="hidden" name="currency_code" value="USD" />
+        <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+        <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
+        </form>
+      </div>
+  </div>
+</div>
+{% endblock content %}

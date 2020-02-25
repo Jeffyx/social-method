@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<body>
+<div class="pt-8"> </div>
+<div>
+    <head>
+    <title>Article 1</title>
+    </head>
+
+    <div class="p-3 max-w-xl mx-auto rounded overflow-hidden shadow-lg bg-white">
+        <div class="font-bold text-xl mb-2">This is a test Article on Chess</div>
+        <p class="text-gray-700 text-base">
+            Chess is a two-player strategy board game played on a checkered board with 64 squares arranged in an 8×8 grid.
+            Chess is believed to be derived from the Indian game chaturanga sometime before the 7th century.
+        </p>
+        <div class="pt-2 max-w-xs mx-auto flex content-center flex-wrap">
+        <img src="{{url_for('static', filename='igotthis.png')}}" />
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,168 @@
+{% block content %}
+<style> 
+    #app {
+    margin: 10px auto;
+    width: 80%;
+    }
+
+    .carousel-component {
+    position: relative;
+    overflow: hidden;
+    }
+
+    .carousel-page {
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    transition: 0.5s;
+    padding: 10px;
+    border: 1px solid #EEE;
+
+    h2 {
+        margin: 0;
+    }
+
+    img {
+        width: 300px;
+    }
+    }
+
+    .carousel-page.active {
+    visibility: visible;
+    position: static;
+    }
+
+    .carousel-nav-prev,
+    .carousel-nav-next {
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    display: block;
+    width: 50px;
+    height: 50px;
+    border: 0;
+    background: rgba(0, 0, 0, 0.5);
+    color: #FFF;
+    cursor: pointer;
+    }
+
+    .carousel-nav-prev {
+    left: 5px;
+    }
+
+    .carousel-nav-next {
+    right: 5px;
+    }
+</style>
+
+
+<div id="components_demo">
+    <button-counter></button-counter>
+</div>
+
+<div id="app">
+    <carousel-component>
+        <carousel-item>
+        <h2>#1</h2> <br>
+        <p> Page 1</p>
+        <!--img src="https://octodex.github.com/images/original.png" alt=""-->
+        </carousel-item>
+        <carousel-item>
+        <h2>#2</h2>
+        <br>
+        <p> Page 2</p>
+        <!--img src="https://octodex.github.com/images/octobiwan.jpg" alt=""-->
+        </carousel-item>
+        <carousel-item>
+        <h2>#3</h2>
+        <img src="https://octodex.github.com/images/daftpunktocat-thomas.gif" alt="">
+        </carousel-item>
+        <carousel-item>
+        <h2>#4</h2>
+        <img src="https://octodex.github.com/images/adventure-cat.png" alt="">
+        </carousel-item>
+    </carousel-component>
+    </div>
+
+{% endblock content %}
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+<script>
+    var components_the_demo = new Vue({ 
+        el: '#components_demo',
+        delimiters: ['~~', '~~'],
+        data: function () {
+        return {
+        count: 0 }
+            },
+            template: '<button v-on:click="count++">You clicked me ~~count~~ times.</button>'
+    })
+</script>
+
+<script>
+Vue.component('carousel-component', {
+    render: function (createElement) {
+      return createElement('div', { class: 'carousel-component' },
+                           this.items.map((item, index) =>
+                                          createElement('div', {
+        'class': 'carousel-page' + (this.current === index ? ' active' : ''),
+        style: {
+          transform: `translate3d(${this.position(index) * 100}%, 0, 0)`,
+        }
+      }, [item])
+                                         ).concat([
+        createElement('button', {
+          'class': 'carousel-nav-prev',
+          on: { click: () => { this.decreaseCurrent(); } }
+        }, 'Prev'),
+        createElement('button', {
+          'class': 'carousel-nav-next',
+          on: { click: () => { this.increaseCurrent(); } }
+        }, 'Next')
+      ])
+                          );
+    },
+    data: function() {
+      return {
+        current: 0
+      };
+    },
+    computed: {
+      items: function() {
+        return this.$slots.default.filter(function(item) {
+          return item.componentOptions !== undefined &&
+            item.componentOptions.tag === 'carousel-item';
+        });
+      }
+    },
+    methods: {
+      decreaseCurrent: function() {
+        this.current += this.items.length - 1;
+        this.current %= this.items.length;
+      },
+      increaseCurrent: function() {
+        this.current += 1;
+        this.current %= this.items.length;
+      },
+      position: function(index) {
+        if (index === this.current) return 0;
+        if (index === (this.current + 1) % this.items.length) return 1;
+        return -1;
+      }
+    }
+  });
+
+  Vue.component('carousel-item', {
+    render: function (createElement) {
+      return createElement('div', { class: 'carousel-item' }, this.$slots.default);
+    }
+  });
+
+  var vue_slider = new Vue({
+    el: '#app'
+  });
+</script>

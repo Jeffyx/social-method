@@ -1,0 +1,67 @@
+{% block content %}
+<div id="app">
+    [[[ message ]]]
+</div>
+
+<div id="components_demo">
+    <button-counter></button-counter>
+</div>
+
+<p>
+    <button onclick="back()">Back!</button>
+    <button onclick="next()">Next!</button>
+</p>
+
+<div id="image_slider">
+    <p>[[[ currentNumber + 1 ]]]</p>
+    <img :src="images[currentNumber]">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+<script>
+var image_slider = new Vue({
+    el: '#image_slider',
+    delimiters: ['[[[', ']]]'],
+    data: {
+        images: ['https://thehappypuppysite.com/wp-content/uploads/2018/04/when-can-puppies-go-outside-header.jpg', 'https://s3.amazonaws.com/cdn-origin-etr.akc.org/wp-content/uploads/2017/11/12193133/German-Shepherd-Puppy-Fetch.jpg', 'https://static.boredpanda.com/blog/wp-content/uploads/2018/10/cutest-puppy-dog-pictures-coverimage.jpg'],
+        currentNumber: 0
+    }
+    })
+
+function next() {
+    if (image_slider.currentNumber >= 2){
+        image_slider.currentNumber = 0}
+    else {
+        image_slider.currentNumber += 1}}
+
+function back() {
+    if (image_slider.currentNumber <= 0){
+        image_slider.currentNumber = 2}
+    else {
+        image_slider.currentNumber -= 1}}
+</script>
+
+<script>
+    var components_the_demo = new Vue({ 
+        el: '#components_demo',
+        delimiters: ['~~', '~~'],
+        data: function () {
+        return {
+        count: 0 }
+            },
+            template: '<button v-on:click="count++">You clicked me ~~count~~ times.</button>'
+    })
+</script>
+
+<script>
+var app = new Vue({
+    el: '#app',
+    delimiters: ['[[[', ']]]'],
+    data: {
+      message: 'Hello Vue!'
+    }
+  })
+</script>
+{% endblock content %}
+
