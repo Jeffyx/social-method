@@ -1,0 +1,8 @@
+Flask
+gunicorn
+flask_mail
+wtforms
+flask_wtf
+flask-migrate
+flask-sqlalchemy
+psycopg2

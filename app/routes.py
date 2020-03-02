@@ -1,7 +1,7 @@
 from flask import render_template, url_for, request, flash
 from forms import ContactForm
 from flask_mail import Message, Mail
-from app import app
+from app import app, db, Userdreams
 
 mail = Mail()
 app.secret_key = 'development key'
@@ -17,9 +17,21 @@ app.config['MAIL_USE_SSL'] = True
 
 mail.init_app(app)
 
+#http://127.0.0.1:55072/browser/ for postgres admin manager gui
 @app.route('/db_form', methods=['GET', 'POST'])
 def db_form():
     if request.method == 'POST':
+        user_name = request.form['user_name']
+        dream = request.form['dream']
+        if user_name == '' or dream == '':
+            return render_template('db_form.html', message='Make sure you fill out everything on the Database Form!')
+        print(user_name, dream)
+        if db.session.query(Userdreams).filter(Userdreams.user_name == user_name).count() == 0:
+            data = Userdreams(user_name, dream)
+            db.session.add(data)
+            db.session.commit()
+        else:
+            return render_template('db_form.html', message='Only one dream per person!')
     return render_template('db_form.html', title='Database Form')
 
 @app.route('/ssm', methods=['GET', 'POST'])
@@ -70,4 +82,5 @@ def article_1():
     return render_template('article_1.html', title='Home')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
+    app.run()
