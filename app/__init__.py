@@ -11,13 +11,11 @@ app = Flask(__name__, static_url_path='/static')
 #from app import routes, models
 
 #Switch EVB to "dev" when working local and 'prod' when deployed to heroku
-ENV = 'prod'
+ENV = 'PROD'
 
 if ENV == 'dev':
-    app.run(debug=True)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://flask_user:123abc@localhost/flask_test'
-else:
-    app.run(debug=False)  
+else: 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://bxtcmazytjltgd:7cca2b76b2925e4d872ff735e597a0b726a86a71f17b2941e1819df40edb0c20@ec2-184-72-235-159.compute-1.amazonaws.com:5432/d1a21ond0jpa2g'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
