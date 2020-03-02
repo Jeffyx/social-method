@@ -23,7 +23,6 @@ else:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-db.create_all()
 
 class Userdreams(db.Model):
     __tablename__= 'userdreams'
