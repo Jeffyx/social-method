@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Lets upload some DB stuff!</h1>
+
+<form action="/db_form" method="POST">
+
+<div class="form-group">
+<h3>Your Name</h3>
+<input
+    type="text"
+    name="name"
+    placeholder="Name of user"
+    />
+<h3>What is your dream?</h3>
+<input
+    type="text"
+    name="dream"
+    placeholder="Spill out your soul"
+    />
+</div>
+</form>
+
+{% endblock content %}

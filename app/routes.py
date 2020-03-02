@@ -17,6 +17,11 @@ app.config['MAIL_USE_SSL'] = True
 
 mail.init_app(app)
 
+@app.route('/db_form', methods=['GET', 'POST'])
+def db_form():
+    if request.method == 'POST':
+    return render_template('db_form.html', title='Database Form')
+
 @app.route('/ssm', methods=['GET', 'POST'])
 def ssm():
     return render_template('ssm.html', title='Socail Method')
