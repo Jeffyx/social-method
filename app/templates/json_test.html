@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.js"></script>
+<div id="demo">
+  <ul>
+    <li v-for="name in firstAccountNames">
+      [[[ name ]]]
+    </li>
+  </ul>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+<script>
+const data = {
+  "data": [
+    [
+      {
+        "account_id": "11",
+        "account_name": "name11"
+      },
+      {
+        "account_id": "12",
+        "account_name": "name12"
+      },
+      {
+        "account_id": "13",
+        "account_name": "name13"
+      },
+      {
+        "account_id": "14",
+        "account_name": "name14"
+      }
+    ],
+    [
+      {
+        "account_id": "21",
+        "account_name": "name21"
+      },
+      {
+        "account_id": "22",
+        "account_name": "name22"
+      },
+      {
+        "account_id": "23",
+        "account_name": "name23"
+      }
+    ],
+    [
+      {
+        "account_id": "31",
+        "account_name": "name31"
+      },
+      {
+        "account_id": "32",
+        "account_name": "name32"
+      },
+      {
+        "account_id": "33",
+        "account_name": "name33"
+      }
+    ]
+  ]
+}
+
+
+new Vue({
+  el: '#demo',
+  delimiters: ['[[[', ']]]'],
+  data() {
+    return {
+      data: data.data
+    }
+  },
+  computed: {
+    firstAccountNames() {
+      return this.data.map(dataSet => dataSet[0].account_name)
+    }
+  }
+})
+</script>
+
+{% endblock content %}
+

@@ -17,26 +17,35 @@ app.config['MAIL_USE_SSL'] = True
 
 mail.init_app(app)
 
+@app.route('/json_test')
+def json_test():
+    return render_template('json_test.html', title='json_test')
+
 #http://127.0.0.1:55072/browser/ for postgres admin manager gui
 @app.route('/db_form', methods=['GET', 'POST'])
 def db_form():
+    userdreams = db.session.query(Userdreams).all()
     if request.method == 'POST':
         user_name = request.form['user_name']
         dream = request.form['dream']
         if user_name == '' or dream == '':
-            return render_template('db_form.html', message='Make sure you fill out everything on the Database Form!')
+            return render_template('db_form.html', message='Make sure you fill out everything on the Database Form!', userdreams=userdreams)
         print(user_name, dream)
         if db.session.query(Userdreams).filter(Userdreams.user_name == user_name).count() == 0:
             data = Userdreams(user_name, dream)
             db.session.add(data)
             db.session.commit()
         else:
-            return render_template('db_form.html', message='Only one dream per person!')
-    return render_template('db_form.html', title='Database Form')
+            return render_template('db_form.html', message='Only one dream per person!', userdreams=userdreams)
+    return render_template('db_form.html', title='Database Form', userdreams=userdreams)
 
 @app.route('/ssm', methods=['GET', 'POST'])
 def ssm():
-    return render_template('ssm.html', title='Socail Method')
+    userdreams = db.session.query(Userdreams).all()
+    dreams_list = []
+    for u in userdreams:
+        dreams_list.append(u)
+    return render_template('ssm.html', title='Socail Method', dreams_list=dreams_list)
 
 @app.route('/')
 @app.route('/posts')

@@ -2,8 +2,9 @@
 
 {% block content %}
 
-<h1>Lets upload some DB stuff!</h1>
 
+<div class="p-3 max-w-xl mx-auto rounded overflow-hidden shadow-lg bg-white">
+<h1>Lets upload some DB stuff!</h1>
 <form action="/db_form" method="POST">
     <div class="form-group">
     <h3>Your Name</h3>
@@ -24,4 +25,12 @@
 {% if message %}
     <p class="message">{{ message }}</p>
 {% endif %}
+
+<br>
+</div>
+
+{% for post in userdreams %}
+<div><p>{{ post.user_name }} says: <b>{{ post.user_dream }}</b></p></div>
+{% endfor %}
+
 {% endblock content %}

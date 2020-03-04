@@ -114,6 +114,10 @@ env.bak/
 venv.bak/
 SOCIAL METHOD/venv/
 SOCIAL METHOD/__pycache__/
+SOCIAL-METHOD/venv/
+SOCIAL-METHOD/__pycache__/
+SOCIAL-METHOD/app/__pycache__/
+SOCIAL METHOD/app/__pycache__/
 
 # Spyder project settings
 .spyderproject
