@@ -3,6 +3,7 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import psycopg2
+from sqlalchemy import create_engine
 
 app = Flask(__name__, static_url_path='/static')
 #app.config.from_object(Config)
@@ -11,12 +12,14 @@ app = Flask(__name__, static_url_path='/static')
 #from app import routes, models
 
 #Switch EVB to "dev" when working local and 'prod' when deployed to heroku
-ENV = 'PROD'
+ENV = 'prod'
 
 if ENV == 'dev':
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://flask_user:123abc@localhost/flask_test'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:gelaw01@localhost/flask_test'
+    engine = create_engine('postgresql://postgres:gelaw01@localhost/flask_test')
 else: 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://bxtcmazytjltgd:7cca2b76b2925e4d872ff735e597a0b726a86a71f17b2941e1819df40edb0c20@ec2-184-72-235-159.compute-1.amazonaws.com:5432/d1a21ond0jpa2g'
+    engine = create_engine('postgres://bxtcmazytjltgd:7cca2b76b2925e4d872ff735e597a0b726a86a71f17b2941e1819df40edb0c20@ec2-184-72-235-159.compute-1.amazonaws.com:5432/d1a21ond0jpa2g')
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

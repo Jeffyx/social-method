@@ -1,7 +1,8 @@
 from flask import render_template, url_for, request, flash
 from forms import ContactForm
 from flask_mail import Message, Mail
-from app import app, db, Userdreams
+from app import app, db, Userdreams, engine
+import pandas as pd 
 
 mail = Mail()
 app.secret_key = 'development key'
@@ -25,6 +26,7 @@ def json_test():
 @app.route('/db_form', methods=['GET', 'POST'])
 def db_form():
     userdreams = db.session.query(Userdreams).all()
+    print(userdreams)
     if request.method == 'POST':
         user_name = request.form['user_name']
         dream = request.form['dream']
@@ -41,11 +43,17 @@ def db_form():
 
 @app.route('/ssm', methods=['GET', 'POST'])
 def ssm():
-    userdreams = db.session.query(Userdreams).all()
-    dreams_list = []
-    for u in userdreams:
-        dreams_list.append(u)
-    return render_template('ssm.html', title='Socail Method', dreams_list=dreams_list)
+    #userdreams = db.session.query(Userdreams.user_name).all()
+    #print(userdreams)
+
+    df = pd.read_sql("SELECT * FROM public.userdreams;", engine)
+    userdreams = df['user_name'].tolist()
+    user_len = len(userdreams)
+    #dreams_list = []
+    #for u in userdreams:
+    #    dreams_list.append(u)
+
+    return render_template('ssm.html', title='Socail Method', userdreams=userdreams, user_len=user_len)
 
 @app.route('/')
 @app.route('/posts')
