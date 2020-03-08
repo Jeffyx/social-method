@@ -1,8 +1,10 @@
-from flask import render_template, url_for, request, flash
-from forms import ContactForm
+from flask import render_template, url_for, request, flash, redirect
+from forms import ContactForm, LoginForm, RegistrationForm
 from flask_mail import Message, Mail
-from app import app, db, Userdreams, engine
+from app import app, db, Userdreams, engine, User
 import pandas as pd 
+from flask_login import current_user, login_user, logout_user, login_required
+from werkzeug.urls import url_parse
 
 mail = Mail()
 app.secret_key = 'development key'
@@ -18,9 +20,41 @@ app.config['MAIL_USE_SSL'] = True
 
 mail.init_app(app)
 
-@app.route('/json_test')
-def json_test():
-    return render_template('json_test.html', title='json_test')
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('posts'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash('Invalid username or password')
+            return redirect(url_for('login'))
+        login_user(user, remember=form.remember_me.data)
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('posts')
+        return redirect(next_page)
+    return render_template('login.html', title='Sign In', form=form)
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('posts'))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('posts'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data, password_hash=form.password.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Congratulations, you are now a registered user!')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
 
 #http://127.0.0.1:55072/browser/ for postgres admin manager gui
 @app.route('/db_form', methods=['GET', 'POST'])
@@ -41,6 +75,7 @@ def db_form():
             return render_template('db_form.html', message='Only one dream per person!', userdreams=userdreams)
     return render_template('db_form.html', title='Database Form', userdreams=userdreams)
 
+@app.route('/')
 @app.route('/ssm', methods=['GET', 'POST'])
 def ssm():
     #userdreams = db.session.query(Userdreams.user_name).all()
@@ -55,8 +90,8 @@ def ssm():
 
     return render_template('ssm.html', title='Socail Method', userdreams=userdreams, user_len=user_len)
 
-@app.route('/')
 @app.route('/posts')
+@login_required
 def posts():
     return render_template('posts.html', title='Home')
 

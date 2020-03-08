@@ -9,6 +9,9 @@
     </div>
     <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
         <div class="text-sm lg:flex-grow">
+        <a href="/ssm" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
+            SSM
+        </a>
         <a href="/posts" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
             Posts
         </a>
@@ -18,15 +21,20 @@
         <a href="/article_1" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
             Article 1
         </a>
-        <a href="/ssm" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
-            SSM
-        </a>
         <a href="/db_form" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
             DB Form
         </a>
-        <a href="/json_test" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
-            Json Test
-        </a>
+    </div>
+    <div>
+        {% if current_user.is_anonymous %}
+            <a href="/login" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
+                Login
+            </a>
+        {% else %}
+            <a href="/logout" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
+                Logout
+            </a>
+        {% endif %}
     </div>
     </nav>
 {% endblock navbar %}
