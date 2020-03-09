@@ -25,7 +25,7 @@ login.login_view = 'login'
 #from app import routes, models
 
 #Switch EVB to "dev" when working local and 'prod' when deployed to heroku
-ENV = 'home_dev'
+ENV = 'prod'
 
 if ENV == 'work_dev':
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:gelaw01@localhost/flask_test'
@@ -46,6 +46,11 @@ migrate = Migrate(app, db)
 #   from app import db
 #   db.create_all() ##this makes tables
 
+followers = db.Table('followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('all_users.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('all_users.id'))
+)
+
 class Userdreams(db.Model):
     __tablename__= 'userdreams'
     id = db.Column(db.Integer, primary_key=True)
@@ -65,7 +70,12 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
-    observation = db.relationship('Observation', backref='User', lazy='dynamic')
+    observation = db.relationship('Observation', backref='author', lazy='dynamic')
+    followed = db.relationship(
+        'User', secondary=followers,
+        primaryjoin=(followers.c.follower_id == id),
+        secondaryjoin=(followers.c.followed_id == id),
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
     def __init__(self, username, email, password_hash):
         self.username = username
@@ -82,6 +92,23 @@ class User(UserMixin, db.Model):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
             digest, size)
+    def follow(self, user):
+        if not self.is_following(user):
+            self.followed.append(user)
+
+    def unfollow(self, user):
+        if self.is_following(user):
+            self.followed.remove(user)
+
+    def is_following(self, user):
+        return self.followed.filter(
+            followers.c.followed_id == user.id).count() > 0
+
+    def followed_posts(self):
+        return Observation.query.join(
+            followers, (followers.c.followed_id == Observation.user_id)).filter(
+                followers.c.follower_id == self.id).order_by(
+                    Observation.timestamp.desc())
 
 class Observation(db.Model):
     __tablename__= 'observation'
@@ -97,6 +124,12 @@ class Observation(db.Model):
         self.timestamp = timestamp
         self.user_id = user_id
 
+def followed_posts(self):
+    followed = Observation.query.join(
+        followers, (followers.c.followed_id == Observation.user_id)).filter(
+            followers.c.follower_id == self.id)
+    own = Observation.query.filter_by(user_id=self.id)
+    return followed.union(own).order_by(Observation.timestamp.desc())
 
 #db.Table('narrative_likes',
 #    db.Column('user_id', db.Integer, db.ForeignKey('all_users.id')),

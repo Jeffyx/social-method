@@ -13,7 +13,6 @@ class ContactForm(FlaskForm):
   message = TextAreaField("Message",  validators=[DataRequired()])
   submit = SubmitField("Send")
   
-  
 class LoginForm(FlaskForm):
   username = StringField('Username', validators=[DataRequired()])
   password = PasswordField('Password', validators=[DataRequired()])
@@ -42,3 +41,8 @@ class EditProfileForm(FlaskForm):
   username = StringField('Username', validators=[DataRequired()])
   about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
   submit = SubmitField('Submit')
+
+class PostForm(FlaskForm):
+    post = TextAreaField('Say something', validators=[
+        DataRequired(), Length(min=1, max=140)])
+    submit = SubmitField('Submit')

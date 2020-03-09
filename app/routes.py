@@ -1,5 +1,5 @@
 from flask import render_template, url_for, request, flash, redirect
-from forms import ContactForm, LoginForm, RegistrationForm, EditProfileForm
+from forms import ContactForm, LoginForm, RegistrationForm, EditProfileForm, PostForm
 from flask_mail import Message, Mail
 from app import app, db, Userdreams, engine, User, Observation
 import pandas as pd 
@@ -25,11 +25,15 @@ mail.init_app(app)
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    posts = [
-        {'author': user, 'body': 'Test post #1'},
-        {'author': user, 'body': 'Test post #2'}
-    ]
-    return render_template('user.html', user=user, posts=posts)
+    page = request.args.get('page', 1, type=int)
+    #User.query.filter_by(username=username)
+    #posts = current_user.posts.order_by(Observation.timestamp.desc()).paginate(page, 3, False)
+    posts = Observation.query.filter_by(user_id=current_user.id).order_by(Observation.timestamp.desc()).paginate(page, 3, False)
+    next_url = url_for('user', username=user.username, page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('user', username=user.username, page=posts.prev_num) \
+        if posts.has_prev else None
+    return render_template('user.html', user=user, posts=posts.items, next_url=next_url, prev_url=prev_url)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -103,11 +107,37 @@ def ssm():
 
     return render_template('ssm.html', title='Socail Method', userdreams=userdreams, user_len=user_len)
 
-@app.route('/posts')
+@app.route('/posts', methods=['GET', 'POST'])
 @login_required
 def posts():
     observation = db.session.query(Observation).all()
-    return render_template('posts.html', title='Home', observation=observation)
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Observation(body=form.post.data, user_id=current_user.id, timestamp=datetime.utcnow())
+        db.session.add(post)
+        db.session.commit()
+        flash('Your post is now live!')
+        return redirect(url_for('posts'))
+
+    page = request.args.get('page', 1, type=int)
+    posts = current_user.followed_posts().paginate(page, 3, False)
+    next_url = url_for('posts', page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('posts', page=posts.prev_num) \
+        if posts.has_prev else None
+    return render_template('posts.html', title='Home', observation=observation, form=form, posts=posts.items, next_url=next_url, prev_url=prev_url)
+
+@app.route('/explore')
+@login_required
+def explore():
+    page = request.args.get('page', 1, type=int)
+    posts = Observation.query.order_by(Observation.timestamp.desc()).paginate(page, 3, False)
+    next_url = url_for('explore', page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('explore', page=posts.prev_num) \
+        if posts.has_prev else None
+
+    return render_template('posts.html', title='Explore', posts=posts.items, next_url=next_url, prev_url=prev_url)
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -168,6 +198,45 @@ def edit_profile():
         form.about_me.data = current_user.about_me
     return render_template('edit_profile.html', title='Edit Profile',
                            form=form)
+
+@app.route('/follow/<username>')
+@login_required
+def follow(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('User {} not found.'.format(username))
+        return redirect(url_for('posts'))
+    if user == current_user:
+        flash('You cannot follow yourself!')
+        return redirect(url_for('user', username=username))
+    current_user.follow(user)
+    db.session.commit()
+    flash('You are following {}!'.format(username))
+    return redirect(url_for('user', username=username))
+
+@app.route('/unfollow/<username>')
+@login_required
+def unfollow(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('User {} not found.'.format(username))
+        return redirect(url_for('posts'))
+    if user == current_user:
+        flash('You cannot unfollow yourself!')
+        return redirect(url_for('user', username=username))
+    current_user.unfollow(user)
+    db.session.commit()
+    flash('You are not following {}.'.format(username))
+    return redirect(url_for('user', username=username))
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('500.html'), 500
 
 if __name__ == '__main__':
     app.run(debug=False)

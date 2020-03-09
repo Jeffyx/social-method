@@ -1,6 +1,40 @@
 {% extends "base.html" %}
 
 {% block content %}
+<h1>Hi, {{ current_user.username }}!</h1>
+{% if form %}
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.post.label }}<br>
+        {{ form.post(cols=32, rows=4) }}<br>
+        {% for error in form.post.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+{% endif %}
+
+{% for p in posts %}
+<table>
+  <tr valign="top">
+      <td><img src="{{ p.author.avatar(36) }}"></td>
+      <td>
+          <a href="{{ url_for('user', username=p.author.username) }}">
+              {{ p.author.username }}
+          </a>
+          says:<br>{{ p.body }}
+      </td>
+  </tr>
+</table>
+{% endfor %}
+{% if prev_url %}
+<a href="{{ prev_url }}">Newer posts</a>
+{% endif %}
+{% if next_url %}
+<a href="{{ next_url }}">Older posts</a>
+{% endif %}
 <head>
   <title>Posts</title>
 </head>
@@ -20,12 +54,6 @@
   <div class="g-ytsubscribe" data-channelid="UCRS1DAQzxNJE-pTm9Dr7KXQ" data-layout="default" data-count="default"></div>
 </div>
 
-<div>
-{% for o in observation %}
 
-<p>{{ o.User.username }} and {{ o.body }} </p>
 
-{% endfor %}
-
-</div>
 {% endblock content %}
