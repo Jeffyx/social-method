@@ -19,4 +19,13 @@
   <script src="https://apis.google.com/js/platform.js"></script>
   <div class="g-ytsubscribe" data-channelid="UCRS1DAQzxNJE-pTm9Dr7KXQ" data-layout="default" data-count="default"></div>
 </div>
+
+<div>
+{% for o in observation %}
+
+<p>{{ o.User.username }} and {{ o.body }} </p>
+
+{% endfor %}
+
+</div>
 {% endblock content %}

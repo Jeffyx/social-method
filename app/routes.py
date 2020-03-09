@@ -1,10 +1,11 @@
 from flask import render_template, url_for, request, flash, redirect
-from forms import ContactForm, LoginForm, RegistrationForm
+from forms import ContactForm, LoginForm, RegistrationForm, EditProfileForm
 from flask_mail import Message, Mail
-from app import app, db, Userdreams, engine, User
+from app import app, db, Userdreams, engine, User, Observation
 import pandas as pd 
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
+from datetime import datetime
 
 mail = Mail()
 app.secret_key = 'development key'
@@ -20,6 +21,16 @@ app.config['MAIL_USE_SSL'] = True
 
 mail.init_app(app)
 
+@app.route('/user/<username>')
+@login_required
+def user(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    posts = [
+        {'author': user, 'body': 'Test post #1'},
+        {'author': user, 'body': 'Test post #2'}
+    ]
+    return render_template('user.html', user=user, posts=posts)
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -28,8 +39,9 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
-            return redirect(url_for('login'))
+            message = 'Invalid username or password'
+            flash(message)
+            return render_template('login.html', title='Sign In', form=form, message=message)
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
@@ -52,8 +64,9 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Congratulations, you are now a registered user!')
-        return redirect(url_for('login'))
+        message = 'Congratulations, you are now a registered user!'
+        flash(message)
+        #return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
 #http://127.0.0.1:55072/browser/ for postgres admin manager gui
@@ -93,7 +106,8 @@ def ssm():
 @app.route('/posts')
 @login_required
 def posts():
-    return render_template('posts.html', title='Home')
+    observation = db.session.query(Observation).all()
+    return render_template('posts.html', title='Home', observation=observation)
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -132,6 +146,28 @@ def contact():
 @app.route('/article_1')
 def article_1():
     return render_template('article_1.html', title='Home')
+
+@app.before_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.about_me = form.about_me.data
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect('/edit_profile')
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html', title='Edit Profile',
+                           form=form)
 
 if __name__ == '__main__':
     app.run(debug=False)

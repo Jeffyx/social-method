@@ -8,6 +8,7 @@ import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin
 from datetime import datetime
+from hashlib import md5
 
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess' 
@@ -45,10 +46,6 @@ migrate = Migrate(app, db)
 #   from app import db
 #   db.create_all() ##this makes tables
 
-#narrative_likes = db.table('narrative_likes',
-#    db.Column('user_id', db.Integer, db.ForeignKey('all_users.id'))
-#    db.Column('narrative_id', db.Integer, db.ForeignKey('narratives.id')))
-
 class Userdreams(db.Model):
     __tablename__= 'userdreams'
     id = db.Column(db.Integer, primary_key=True)
@@ -65,8 +62,10 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    narrative = db.relationship('Narrative', backref='all_users', lazy='dynamic')
-    #narrative_like = db.relationship('NarrativeLikes', secondary=narrative_likes, backref='all_users', lazy='dynamic')
+    about_me = db.Column(db.String(140))
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+
+    observation = db.relationship('Observation', backref='User', lazy='dynamic')
 
     def __init__(self, username, email, password_hash):
         self.username = username
@@ -79,13 +78,19 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-class Narrative(db.Model):
-    __tablename__= 'narratives'
+    def avatar(self, size):
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
+            digest, size)
+
+class Observation(db.Model):
+    __tablename__= 'observation'
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('all_users.id'))
     #narrative_like = db.relationship('narratives_likes', backref='narratives', lazy='dynamic')
+    #narrative_like = db.relationship('Narrative', secondary='narrative_likes', backref='User', lazy='dynamic')
 
     def __init__(self, body, timestamp, user_id):
         self.body = body
@@ -93,6 +98,9 @@ class Narrative(db.Model):
         self.user_id = user_id
 
 
+#db.Table('narrative_likes',
+#    db.Column('user_id', db.Integer, db.ForeignKey('all_users.id')),
+#    db.Column('narrative_id', db.Integer, db.ForeignKey('narratives.id')))
 
 #class NarrativeLikes(db.Model):
 #    __tablename__= 'narratives_likes'
