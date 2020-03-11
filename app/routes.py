@@ -113,7 +113,7 @@ def posts():
     observation = db.session.query(Observation).all()
     form = PostForm()
     if form.validate_on_submit():
-        post = Observation(body=form.post.data, user_id=current_user.id, timestamp=datetime.utcnow())
+        post = Observation(body=form.post.data, user_id=current_user.id, timestamp=datetime.now())
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')
@@ -180,7 +180,7 @@ def article_1():
 @app.before_request
 def before_request():
     if current_user.is_authenticated:
-        current_user.last_seen = datetime.utcnow()
+        current_user.last_seen = datetime.now()
         db.session.commit()
 
 @app.route('/edit_profile', methods=['GET', 'POST'])

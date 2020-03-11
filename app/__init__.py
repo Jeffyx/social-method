@@ -25,7 +25,7 @@ login.login_view = 'login'
 #from app import routes, models
 
 #Switch EVB to "dev" when working local and 'prod' when deployed to heroku
-ENV = 'prod'
+ENV = 'home_dev'
 
 if ENV == 'work_dev':
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:gelaw01@localhost/flask_test'

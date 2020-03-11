@@ -47,13 +47,16 @@
 
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script> 
-<script>var moment = require('moment');</script>
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.28/moment-timezone-with-data-2012-2022.js"></script--> 
+
+<!--script>var moment = require('moment-timezone');</script-->
+<script>var moment = require('moment-timezone');</script>
 <script>
 var timez = new Vue({
     el: '#timez',
     delimiters: ['[[[', ']]]'],
     data: {
-        momentz: moment("{{ user.last_seen }}").format('LLL')
+        momentz: moment("{{ user.last_seen }}").utc('America/New_York|US/Eastern').format('LLL')
     }
 })
 </script>
