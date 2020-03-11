@@ -10,5 +10,3 @@ flask_login
 datetime
 pandas
 sqlalchemy
-os
-hashlib
