@@ -6,3 +6,9 @@ flask_wtf
 flask-migrate
 flask-sqlalchemy
 psycopg2
+flask_login
+datetime
+pandas
+sqlalchemy
+os
+hashlib
